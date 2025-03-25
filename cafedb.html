@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cafe Analytics Dashboard</title>
+	<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ctext y='12' font-size='12'%3E%F0%9F%93%8A%3C/text%3E%3C/svg%3E">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 20px;
+            background: #f0f2f5;
+        }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .metric-card {
+            text-align: center;
+            background: #2c3e50;
+            color: white;
+        }
+        .metric-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        tr:hover { background: #f5f5f5; }
+        .chart-container { height: 300px; }
+    </style>
+</head>
+<body>
+    <h1>📊 Cafe Sales Analytics - Last Month</h1>
+    
+    <div class="dashboard">
+        <!-- Key Metrics -->
+        <div class="card metric-card">
+            <h3>Total Revenue</h3>
+            <div class="metric-value" id="totalRevenue">$---</div>
+        </div>
+        
+        <div class="card metric-card" style="background: #27ae60;">
+            <h3>Total Items Sold</h3>
+            <div class="metric-value" id="totalSold">---</div>
+        </div>
+
+        <!-- Charts -->
+        <div class="card">
+            <h3>Sales by Category</h3>
+            <div class="chart-container">
+                <canvas id="categoryChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Weekly Sales Trend</h3>
+            <div class="chart-container">
+                <canvas id="weeklySalesChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Data Tables -->
+        <div class="card">
+            <h3>Top Selling Items</h3>
+            <table id="topItemsTable">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Sold</th>
+                        <th>Revenue</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Most Profitable Items</h3>
+            <table id="profitableTable">
+                <thead>
+                    <tr>
+                        <th>Item</th>
+                        <th>Profit Margin</th>
+                        <th>Total Profit</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Generate dummy data
+        const generateData = () => {
+            const items = [
+                { name: 'Espresso', category: 'Coffee', cost: 1.0, price: 3.5 },
+                { name: 'Cappuccino', category: 'Coffee', cost: 1.2, price: 4.5 },
+                { name: 'Latte', category: 'Coffee', cost: 1.5, price: 5.0 },
+                { name: 'Croissant', category: 'Pastry', cost: 0.8, price: 2.5 },
+                { name: 'Blueberry Muffin', category: 'Pastry', cost: 1.0, price: 3.5 },
+                { name: 'Chocolate Cake', category: 'Dessert', cost: 2.5, price: 6.5 },
+                { name: 'Tiramisu', category: 'Dessert', cost: 2.0, price: 5.5 },
+                { name: 'Iced Coffee', category: 'Cold Drink', cost: 1.0, price: 4.0 },
+                { name: 'Lemonade', category: 'Cold Drink', cost: 0.5, price: 3.0 },
+                { name: 'Smoothie', category: 'Cold Drink', cost: 1.8, price: 5.5 }
+            ];
+
+            // Generate 4 weeks of sales data
+            const weeks = [1, 2, 3, 4];
+            items.forEach(item => {
+                item.sales = weeks.map(week => ({
+                    week: week,
+                    sold: Math.floor(Math.random() * (120 - 30 + 1) + 30) // Random between 30-120
+                }));
+                item.totalSold = item.sales.reduce((sum, week) => sum + week.sold, 0);
+                item.revenue = item.totalSold * item.price;
+                item.profit = item.totalSold * (item.price - item.cost);
+            });
+
+            return {
+                items,
+                weeks,
+                totalRevenue: items.reduce((sum, item) => sum + item.revenue, 0),
+                totalSold: items.reduce((sum, item) => sum + item.totalSold, 0)
+            };
+        };
+
+        // Process and display data
+        const data = generateData();
+
+        // Update metrics
+        document.getElementById('totalRevenue').textContent = `$${data.totalRevenue.toFixed(2)}`;
+        document.getElementById('totalSold').textContent = data.totalSold;
+
+        // Category Chart
+        const categorySales = data.items.reduce((acc, item) => {
+            acc[item.category] = (acc[item.category] || 0) + item.revenue;
+            return acc;
+        }, {});
+
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(categorySales),
+                datasets: [{
+                    data: Object.values(categorySales),
+                    backgroundColor: ['#3498db', '#e74c3c', '#2ecc71', '#f1c40f', '#9b59b6']
+                }]
+            }
+        });
+
+        // Weekly Sales Chart
+        const weeklySales = data.weeks.map(week => 
+            data.items.reduce((sum, item) => 
+                sum + item.sales.find(w => w.week === week).sold * item.price, 0)
+        );
+
+        new Chart(document.getElementById('weeklySalesChart'), {
+            type: 'line',
+            data: {
+                labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+                datasets: [{
+                    label: 'Weekly Revenue',
+                    data: weeklySales,
+                    borderColor: '#e74c3c',
+                    backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                    tension: 0.4,
+                    fill: true
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Revenue ($)'
+                        }
+                    }
+                }
+            }
+        });
+
+        // Populate tables
+        const sortedBySales = [...data.items].sort((a, b) => b.totalSold - a.totalSold);
+        const sortedByProfit = [...data.items].sort((a, b) => b.profit - a.profit);
+
+        document.querySelector('#topItemsTable tbody').innerHTML = 
+            sortedBySales.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${item.totalSold}</td>
+                    <td>$${item.revenue.toFixed(2)}</td>
+                </tr>
+            `).slice(0, 5).join('');
+
+        document.querySelector('#profitableTable tbody').innerHTML = 
+            sortedByProfit.map(item => `
+                <tr>
+                    <td>${item.name}</td>
+                    <td>${((item.price - item.cost)/item.price * 100).toFixed(1)}%</td>
+                    <td>$${item.profit.toFixed(2)}</td>
+                </tr>
+            `).slice(0, 5).join('');
+    </script>
+</body>
+</html>

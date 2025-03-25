@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<!-- Add Font Awesome CSS -->
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link rel="icon" type="image/x-icon" href="assets/ico.png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Helmi Yusuf Susanto (Web/Game/Software) - Personal Website</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            line-height: 1.6;
+            color: #333;
+            background-color: #f4f4f4;
+        }
+
+        .container {
+            max-width: 1100px;
+            margin: auto;
+            padding: 0 20px;
+        }
+
+        header {
+            background: #333;
+            color: #fff;
+            padding: 2rem 0;
+            margin-bottom: 2rem;
+        }
+
+        .profile-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            margin-bottom: 1rem;
+        }
+
+        .section {
+            background: #fff;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        h1, h2 {
+            margin-bottom: 1rem;
+        }
+
+        .skills {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        footer {
+            background: #333;
+            color: #fff;
+            text-align: center;
+            padding: 1rem;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+		
+		 /* Add these new styles */
+        .navbar {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background: #333;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .nav-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #4CAF50;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+
+        /* Offset for fixed header */
+        section {
+            scroll-margin-top: 70px; /* Adjust based on header height */
+        }
+		
+		.cv-button-container {
+        margin-top: 1.5rem;
+        text-align: center;
+    }
+
+    .cv-button {
+        display: inline-block;
+        padding: 12px 24px;
+        background-color: #e63946; /* Red color */
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: background-color 0.3s;
+    }
+
+    .cv-button:hover {
+        background-color: #d62828; /* Darker red */
+    }
+	
+	
+	 .contact-logos {
+        display: flex;
+        gap: 2rem;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+	
+	.logo-link {
+        color: #333; 
+        transition: color 0.3s;
+    }
+
+    .logo-link:hover {
+        color: #45a049; 
+    }
+	
+	h2 {
+    border-bottom: 2px solid #e63946 !important; /* Force override */
+    padding-bottom: 8px; /* Add space below text */
+    display: inline-block; /* Contain border width to text length */
+}
+
+.header-content {
+    display: flex;
+    align-items: center; /* Vertical alignment */
+    gap: 2rem; /* Space between image and text */
+}
+
+.profile-img {
+    width: 150px; /* Reduce image size if needed */
+    height: 150px;
+    margin-bottom: 0; /* Remove original bottom margin */
+}
+
+.header-text {
+    flex: 1;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .header-content {
+        flex-direction: column;
+        text-align: center;
+    }
+}
+	
+    </style>
+</head>
+<body>
+  <!-- Add navigation menu -->
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#skills">Skills</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#experience">Experience</a></li>
+            <li><a href="#education">Education</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+    <header>
+		<br>
+        <div class="container header-content">
+            <img src="assets\ava.png" alt="Profile Photo" class="profile-img">
+			<div class="header-text">
+            <h1>Helmi Yusuf Susanto</h1>
+            <p>Technical Developer | Data Science & Cybersecurity Enthusiast</p>
+			</div>
+
+        </div>
+    </header>
+
+    <!-- Add smooth scroll JavaScript for better browser support -->
+    <script>
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+        });
+    </script>
+
+    <div class="container">
+        <section id="about" class="section">
+            <h2>About Me</h2>
+            <p>Hello there, I’m Helmi Yusuf Susanto, a developer with a passion for web, game, and software development. I love building efficient but effective, user-friendly applications and solving technical problems.</p><br>
+			<p>I’m also interested in data science and cybersecurity, exploring how data can drive smarter decisions and how to keep systems secure. Whether it’s coding, analyzing data, or learning new technologies, I’m always eager to improve.</p><br>
+			<p>Outside of tech, I enjoy playing board games and exploring graphic design.</p><br>
+			<p>I believe in keeping things simple. Life is really simple, but we insist on making it complicated.</p><br>
+			<div class="cv-button-container">
+        <a href="YOUR_GOOGLE_DRIVE_LINK_HERE" class="cv-button" target="_blank" download>
+            Download CV ▼
+        </a>
+    </div>
+	   </section>
+
+        <section id="skills" class="section">
+            <h2>Skills</h2>
+            <div class="skills">
+                <ul>
+				<h3>Soft Skills</h3>
+                    <li>Creative Problem Solving</li>
+                    <li>Critical Thinking</li>
+                    <li>Leadership</li>
+                    <li>Teamwork</li>
+                    <li>Project Planning</li>
+                </ul>
+                <ul>
+				<h3>Technical Skills</h3>
+                    <li>Full-Stack Development (Front-End & Back-End Technologies)</li>
+                    <li>Game Development & Engine (Unity, Unreal Engine, Construct)</li>
+                    <li>Machine Learning & AI (TensorFlow, PyTorch, Scikit-learn)</li>
+                    <li>Object-Oriented Programming (OOP)</li>
+					<li>Software Development Lifecycle (SDLC)</li>
+                </ul>
+            </div>
+        </section>
+		
+		<section id="projects" class="section">
+            <h2>Projects Sample</h2>
+				<h3>Flappy Bat</h3>
+                    <p><a href="flappy.html">Help a bat navigates through a dark cave filled with stalactites and stalagmites.</a></p>
+                    <li>Tap to make the bat flap upwards (gravity pulls it down)</li>
+                    <li>Avoid hitting the rocky formations (triangular obstacles).</li>
+                    <li>The bat can safely touch the cave's ceiling/floor without dying (only obstacles cause game over).</li>
+                    <li>Score increases for each pair of obstacles passed.</li>
+					<br>
+				<h3>Garlic Survivor</h3>
+                    <p><a href="vampy.html">Help a vampire runs through a castle while dodging thrown garlic cloves.</a></p>
+                    <li>Vampire auto-moves left/right (tap to reverse direction).</li>
+                    <li>Garlic cloves fall from above with spinning animation.</li>
+                    <li>Wrap-around mechanic: hitting the edge teleports the vampire to the opposite side.</li>
+					<li>Score increases for each garlic avoided.</li>
+					<br>
+				<h3>Café Menu & Order System</h3>
+                    <p><a href="cafemn.html">Digital menu with cart functionality for customers.</a></p>
+                    <li>Category tabs (Pastries, Desserts, Coffees/Teas, Cold Drinks).</li>
+                    <li>Visual item cards with descriptions and prices.</li>
+                    <li>Interactive cart with quantity adjustment.</li>
+                    <li>Real-time order total calculation.</li>
+					<br>
+				<h3>Café Analytics Dashboard</h3>
+                    <p><a href="cafedb.html">Track sales performance and profitability.</a></p>
+                    <li>Weekly revenue trend (line chart).</li>
+                    <li>Sales distribution by category (doughnut chart).</li>
+                    <li>Top 5 best-selling items (table).</li>
+                    <li>Top 5 most profitable items (profit margin %).</li>
+        </section>
+
+        <section id="experience" class="section">
+            <h2>Experience</h2>
+            <h3>Unity Developer (Freelance) - Hysteric Media Game Studio (Hime Games)</h3>
+            <p>2021-2023</p>
+            <ul>
+                <li>Developed multiple game mechanics, UI/UX elements, and core gameplay systems using Unity and C#.</li>
+            </ul>
+			<br> <h3>Game Development Lecturer's Assistant - Tarumanagara University</h3>
+            <p>2019-2020</p>
+            <ul>
+                <li>Assisted in delivering lectures and practical sessions on game development concepts, Unity programming, and game design principles.</li>
+            </ul>
+			<br> <h3>Software Developer (Intern) - Kilimanjaro Agra Makmur</h3>
+            <p>2018</p>
+            <ul>
+                <li>Developed and maintained internal software solutions to optimize logistics operations.</li>
+            </ul>
+			<br> <h3> Web Developer (Volunteer) - Hobinesia</h3>
+            <p>2017</p>
+            <ul>
+                <li>Conducted testing and debugging to identify and fix issues, improving user experience and accessibility.</li>
+            </ul>
+			<br> <h3>Web Developer (Volunteer) - Pancake.inc</h3>
+            <p>2016</p>
+            <ul>
+                <li>Developed a website for a local food and beverage business to enhance their online presence.</li>
+            </ul>
+        </section>
+
+        <section id="education" class="section">
+            <h2>Education</h2>
+			<h3>M.Sc. in Computer Science - Bina Nusantara University</h3>
+            <p>2023-2025</p>
+			<ul>
+            <li>GPA 3.89</li>
+            <li>Data Science Program</li>
+            <li>Graduate Thesis: <a href="http://ieeexplore.ieee.org/document/10860402">The Learning Outcomes Achievement and User Experience Analysis of a Cryptography Education Web Game</a> </li><r>
+			</ul>
+			<br>
+            <h3>B.Sc. in Computer Science - Tarumanagara University</h3>
+            <p>2015-2020</p>
+			<ul>
+            <li>GPA 3.26</li>
+            <li>Game Application and Technology Program</li>
+            <li>Undergraduate Thesis: <a href="https://journal.untar.ac.id/index.php/jiksi/article/download/11470/7156"> 2.5D Action-Adventure Game "Dysphoria, Delirious Realm"</a></li>
+			</ul>
+        </section>
+
+        <section id="contact" class="section">
+            <h2>Contact</h2>
+			
+		<div class="contact-logos">
+			<a href="mailto:susato.hielman@gmail.com" class="logo-link">
+			<i class="fas fa-envelope fa-2x"></i>
+			</a>
+			<a href="https://linkedin.com/in/susato" class="logo-link">
+			<i class="fab fa-linkedin fa-2x"></i>
+			</a>
+			<a href="https://github.com/susato1511" class="logo-link">
+			<i class="fab fa-github-square fa-2x"></i>
+			</a>
+		</div>
+        </section>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Helmi Yusuf Susanto. All rights reserved.</p>
+    </footer>
+</body>
+</html>

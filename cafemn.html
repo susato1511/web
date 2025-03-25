@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cafe Menu</title> 
+		<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16'%3E%3Ctext y='12' font-size='12'%3E%E2%98%95%3C/text%3E%3C/svg%3E">
+	 <style>
+        body { font-family: 'Arial', sans-serif; margin: 20px; background: #f7f7f7; }
+        .container { display: grid; grid-template-columns: 3fr 1fr; gap: 30px; }
+        .category-tabs { margin-bottom: 20px; }
+        .category-tabs button {
+            padding: 12px 20px;
+            margin: 0 5px 10px 0;
+            background: #333;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+		
+        .category-tabs button:hover { color: #45a049; }
+
+		
+        .menu-category { display: none; }
+        .menu-category.active { display: block; }
+        .menu-item {
+            background: white;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+        .item-image {
+            width: 100px;
+            height: 100px;
+            background: #eee;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+        .cart {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: sticky;
+            top: 20px;
+        }
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+        }
+        button.add-to-cart {
+            background: #4CAF50;
+			color: white;
+            padding: 8px 20px;
+            margin-top: 10px;
+        }
+		
+		button.add-to-cart:hover {
+		background-color: #2e7d32;
+        }
+		
+        .price { color: #4CAF50; font-weight: bold; }
+		
+    </style>
+</head>
+<body>
+    <h1>☕🍰 Zucchero Café </h1>
+    
+    <div class="container">
+        <div class="menu">
+            <div class="category-tabs">
+                <button onclick="showCategory('pastries')">Pastries</button>
+                <button onclick="showCategory('desserts')">Desserts</button>
+                <button onclick="showCategory('coffees')">Coffees & Teas</button>
+                <button onclick="showCategory('cold-drinks')">Cold Drinks</button>
+            </div>
+
+            <!-- Pastries -->
+            <div id="pastries" class="menu-category active">
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Butter Croissant 🥐</h3>
+                        <p>Flaky, buttery French croissant</p>
+                        <p class="price">$3.50 <button class="add-to-cart" onclick="addToCart('Butter Croissant', 3.50)">Add</button></p>
+                    </div>
+                </div>
+                <!-- Add 4 more pastries -->
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Almond Croissant</h3>
+                        <p>Filled with almond cream</p>
+                        <p class="price">$4.50 <button class="add-to-cart" onclick="addToCart('Almond Croissant', 4.50)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Pain au Chocolat 🍫</h3>
+                        <p>Chocolate-filled pastry</p>
+                        <p class="price">$4.00 <button class="add-to-cart" onclick="addToCart('Pain au Chocolat', 4.00)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Blueberry Danish</h3>
+                        <p>Sweet pastry with berry filling</p>
+                        <p class="price">$4.25 <button class="add-to-cart" onclick="addToCart('Blueberry Danish', 4.25)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Savory Spinach Roll</h3>
+                        <p>Flaky pastry with spinach & feta</p>
+                        <p class="price">$4.75 <button class="add-to-cart" onclick="addToCart('Savory Spinach Roll', 4.75)">Add</button></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Desserts -->
+            <div id="desserts" class="menu-category">
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Tiramisu 🍰</h3>
+                        <p>Classic Italian dessert</p>
+                        <p class="price">$5.50 <button class="add-to-cart" onclick="addToCart('Tiramisu', 5.50)">Add</button></p>
+                    </div>
+                </div>
+                <!-- Add 4 more desserts -->
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Chocolate Fondant 🧁</h3>
+                        <p>Molten lava cake</p>
+                        <p class="price">$6.00 <button class="add-to-cart" onclick="addToCart('Chocolate Fondant', 6.00)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Cheesecake 🍰</h3>
+                        <p>New York style</p>
+                        <p class="price">$5.75 <button class="add-to-cart" onclick="addToCart('Cheesecake', 5.75)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Macarons (6pc) 🎨</h3>
+                        <p>Assorted flavors</p>
+                        <p class="price">$7.00 <button class="add-to-cart" onclick="addToCart('Macarons', 7.00)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Fruit Tart 🍓</h3>
+                        <p>Seasonal fruits on pastry cream</p>
+                        <p class="price">$6.50 <button class="add-to-cart" onclick="addToCart('Fruit Tart', 6.50)">Add</button></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Coffees & Teas -->
+            <div id="coffees" class="menu-category">
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Espresso ☕</h3>
+                        <p>Strong black coffee</p>
+                        <p class="price">$3.00 <button class="add-to-cart" onclick="addToCart('Espresso', 3.00)">Add</button></p>
+                    </div>
+                </div>
+                <!-- Add 4 more coffees/teas -->
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Cappuccino ☕</h3>
+                        <p>Espresso with steamed milk</p>
+                        <p class="price">$4.50 <button class="add-to-cart" onclick="addToCart('Cappuccino', 4.50)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Matcha Latte 🍵</h3>
+                        <p>Japanese green tea latte</p>
+                        <p class="price">$5.00 <button class="add-to-cart" onclick="addToCart('Matcha Latte', 5.00)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Chai Latte ☕</h3>
+                        <p>Spiced Indian tea</p>
+                        <p class="price">$4.75 <button class="add-to-cart" onclick="addToCart('Chai Latte', 4.75)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Cold Brew �</h3>
+                        <p>16oz nitro cold brew</p>
+                        <p class="price">$4.25 <button class="add-to-cart" onclick="addToCart('Cold Brew', 4.25)">Add</button></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cold Drinks -->
+            <div id="cold-drinks" class="menu-category">
+                <div class="menu-item">
+                     <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Iced Latte 🧊</h3>
+                        <p>Espresso with cold milk</p>
+                        <p class="price">$4.75 <button class="add-to-cart" onclick="addToCart('Iced Latte', 4.75)">Add</button></p>
+                    </div>
+                </div>
+                <!-- Add 4 more cold drinks -->
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Lemonade 🍋</h3>
+                        <p>Homemade sparkling lemonade</p>
+                        <p class="price">$3.75 <button class="add-to-cart" onclick="addToCart('Lemonade', 3.75)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Iced Matcha 🧊</h3>
+                        <p>Cold green tea latte</p>
+                        <p class="price">$5.25 <button class="add-to-cart" onclick="addToCart('Iced Matcha', 5.25)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Smoothie 🍓</h3>
+                        <p>Mixed berry yogurt smoothie</p>
+                        <p class="price">$5.50 <button class="add-to-cart" onclick="addToCart('Smoothie', 5.50)">Add</button></p>
+                    </div>
+                </div>
+                <div class="menu-item">
+                    <img src="assets/img.png" class="item-image">
+                    <div>
+                        <h3>Bottled Cold Brew 🧴</h3>
+                        <p>Takeaway cold brew</p>
+                        <p class="price">$4.00 <button class="add-to-cart" onclick="addToCart('Bottled Cold Brew', 4.00)">Add</button></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cart Section (Same as previous example) -->
+        <div class="cart">
+            <h2>Your Order 🛒</h2>
+            <div id="cartItems"></div>
+            <hr>
+            <p>Total: $<span id="total">0.00</span></p>
+            <button onclick="submitOrder()" 
+			style="background: #333; color: white; width: 100%; padding: 15px; transition: color 0.3s;"
+			onmouseover="this.style.color='#45a049'" 
+			onmouseout="this.style.color='white'">
+    Place Order
+</button>
+
+        </div>
+    </div>
+
+    <script>
+        // JavaScript code remains the same as previous example
+        let cart = [];
+        
+        function showCategory(categoryId) {
+            document.querySelectorAll('.menu-category').forEach(cat => 
+                cat.classList.remove('active'));
+            document.getElementById(categoryId).classList.add('active');
+        }
+
+        function addToCart(itemName, price) {
+            const existingItem = cart.find(item => item.name === itemName);
+            if (existingItem) {
+                existingItem.quantity++;
+            } else {
+                cart.push({ name: itemName, price: price, quantity: 1 });
+            }
+            updateCartDisplay();
+        }
+
+        function updateCartDisplay() {
+            const cartItems = document.getElementById('cartItems');
+            const totalElement = document.getElementById('total');
+            let total = 0;
+            
+            cartItems.innerHTML = '';
+            
+            cart.forEach((item, index) => {
+                const itemTotal = item.price * item.quantity;
+                total += itemTotal;
+                
+                const div = document.createElement('div');
+                div.className = 'cart-item';
+                div.innerHTML = `
+                    <div>
+                        ${item.name} 
+                        <button onclick="adjustQuantity(${index}, -1)">-</button>
+                        ${item.quantity}
+                        <button onclick="adjustQuantity(${index}, 1)">+</button>
+                    </div>
+                    <div>$${itemTotal.toFixed(2)}</div>
+                `;
+                cartItems.appendChild(div);
+            });
+            
+            totalElement.textContent = total.toFixed(2);
+        }
+
+        function adjustQuantity(index, change) {
+            cart[index].quantity += change;
+            if (cart[index].quantity < 1) {
+                cart.splice(index, 1);
+            }
+            updateCartDisplay();
+        }
+
+        function submitOrder() {
+            if (cart.length === 0) return alert('Your cart is empty!');
+            const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+            alert(`Order placed! Total: $${total.toFixed(2)}\nThank you!`);
+            cart = [];
+            updateCartDisplay();
+        }
+    </script>
+</body>
+</html>
