@@ -1,20 +1,13 @@
 <!DOCTYPE html>
-<html>
-<head>
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<!-- saved from url=(0044)https://susato1511.github.io/web/flappy.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flappy Bat</title>
-    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; width=&#39;32&#39; height=&#39;32&#39;%3E%3Ctext x=&#39;0&#39; y=&#39;32&#39; font-size=&#39;32&#39;%3E%F0%9F%A6%87%3C/text%3E%3C/svg%3E" type="image/svg+xml">
-    
-    <!-- FIX 1: Added Viewport Meta Tag to control scaling -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
+	 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; width=&#39;32&#39; height=&#39;32&#39;%3E%3Ctext x=&#39;0&#39; y=&#39;32&#39; font-size=&#39;32&#39;%3E%F0%9F%A6%87%3C/text%3E%3C/svg%3E" type="image/svg+xml">
     <style>
         canvas {
             border: 1px solid #555;
             background: #1a1a1a;
-            /* Ensure the canvas fits on small screens */
-            max-width: 100%;
-            max-height: 100vh;
         }
         body {
             display: flex;
@@ -23,13 +16,6 @@
             height: 100vh;
             margin: 0;
             background: #000;
-            overflow: hidden; /* Prevent scrolling */
-            
-            /* FIX 2: Disable browser handling of gestures */
-            touch-action: none; 
-            -webkit-user-select: none; /* Safari */
-            user-select: none;        /* Standard */
-            -webkit-touch-callout: none; /* iOS long press */
         }
         #score {
             position: absolute;
@@ -39,8 +25,12 @@
             color: #fff;
             user-select: none;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-            pointer-events: none; /* Clicks pass through to the game */
         }
+		body, canvas {
+    touch-action: manipulation;
+    -ms-touch-action: manipulation;
+		}
+
     </style>
 </head>
 <body>
@@ -97,26 +87,21 @@
         const obstacleWidth = 60;
         const obstacleSpacing = 250;
 
-        // Event listeners
-        // We use touchstart with preventDefault to ensure no zoom happens on mobile
-        document.addEventListener('touchstart', (e) => {
-            e.preventDefault(); // Stops default zoom behavior
-            handleInput();
-        }, { passive: false });
+function handleInput(e) {
+    e.preventDefault();
 
-        document.addEventListener('mousedown', () => {
-            handleInput();
-        });
+    if (!gameStarted) {
+        gameStarted = true;
+        gameLoop();
+        return;
+    }
+    if (!gameOver) bat.velocity = bat.jump;
+    else resetGame();
+}
 
-        function handleInput() {
-            if (!gameStarted) {
-                gameStarted = true;
-                gameLoop();
-                return;
-            }
-            if (!gameOver) bat.velocity = bat.jump;
-            else resetGame();
-        }
+document.addEventListener('touchstart', handleInput, { passive: false });
+document.addEventListener('click', handleInput);
+
 
         function resetGame() {
             bat.y = 300;
@@ -279,5 +264,4 @@
         draw();
     </script>
 
-</body>
-</html>
+</body></html>
