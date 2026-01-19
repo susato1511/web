@@ -32,8 +32,10 @@ body {
 canvas {
     border: 1px solid #500;
     background: #200;
-    touch-action: none;
+
+    touch-action: manipulation;
 }
+
 
 #score {
     position: absolute;
@@ -109,7 +111,7 @@ function handleInput(e) {
 }
 
 canvas.addEventListener('touchstart', handleInput, { passive: false });
-canvas.addEventListener('pointerdown', handleInput);
+canvas.addEventListener('click', handleInput);
 
 /* ================== GAME LOGIC ================== */
 function resetGame() {
