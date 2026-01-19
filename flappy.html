@@ -1,8 +1,9 @@
 <!DOCTYPE html>
-<html>
-<head>
+<!-- saved from url=(0044)https://susato1511.github.io/web/flappy.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8"><meta name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Flappy Bat</title>
-	 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'%3E%3Ctext x='0' y='32' font-size='32'%3E%F0%9F%A6%87%3C/text%3E%3C/svg%3E" type="image/svg+xml">
+	 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=&#39;http://www.w3.org/2000/svg&#39; width=&#39;32&#39; height=&#39;32&#39;%3E%3Ctext x=&#39;0&#39; y=&#39;32&#39; font-size=&#39;32&#39;%3E%F0%9F%A6%87%3C/text%3E%3C/svg%3E" type="image/svg+xml">
     <style>
         canvas {
             border: 1px solid #555;
@@ -25,6 +26,11 @@
             user-select: none;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
         }
+		body, canvas {
+    touch-action: manipulation;
+    -ms-touch-action: manipulation;
+		}
+
     </style>
 </head>
 <body>
@@ -81,16 +87,21 @@
         const obstacleWidth = 60;
         const obstacleSpacing = 250;
 
-        // Event listeners
-        document.addEventListener('click', () => {
-            if (!gameStarted) {
-                gameStarted = true;
-                gameLoop();
-                return;
-            }
-            if (!gameOver) bat.velocity = bat.jump;
-            else resetGame();
-        });
+function handleInput(e) {
+    e.preventDefault();
+
+    if (!gameStarted) {
+        gameStarted = true;
+        gameLoop();
+        return;
+    }
+    if (!gameOver) bat.velocity = bat.jump;
+    else resetGame();
+}
+
+document.addEventListener('touchstart', handleInput, { passive: false });
+document.addEventListener('click', handleInput);
+
 
         function resetGame() {
             bat.y = 300;
@@ -252,5 +263,5 @@
 
         draw();
     </script>
-</body>
-</html>
+
+</body></html>
