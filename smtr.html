@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Freshman Year | Semester Simulator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #070b13;
+            --bg-2: #0b1220;
+            --border: #1c2b40;
+            --text: #dce8f8;
+            --muted: #64748b;
+            --accent: #4b8ef8;
+            --cyan: #22d3ee;
+            --radius: 12px;
+            --ff-display: 'Syne', sans-serif;
+            --ff-mono: 'JetBrains Mono', monospace;
+            --ff-body: 'DM Sans', sans-serif;
+        }
+
+        body {
+            font-family: var(--ff-body);
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-image:
+                linear-gradient(rgba(75,142,248,0.025) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(75,142,248,0.025) 1px, transparent 1px);
+            background-size: 44px 44px;
+        }
+
+        #game-card {
+            background: var(--bg-2);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            width: 90%;
+            max-width: 600px;
+            padding: 2.5rem;
+            box-shadow: 0 4px 28px rgba(0,0,0,0.55);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .label {
+            font-family: var(--ff-mono);
+            font-size: 0.72rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 0.14em;
+        }
+
+        h1 {
+            font-family: var(--ff-display);
+            font-size: 1.8rem;
+            margin: 0.5rem 0;
+        }
+
+        .stats-container {
+            display: none; 
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 2rem;
+        }
+
+        .stats-container.active {
+            display: grid;
+        }
+
+        .stat-box {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border);
+            padding: 10px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-val {
+            display: block;
+            font-family: var(--ff-mono);
+            font-weight: bold;
+            color: var(--cyan);
+        }
+
+        .stat-lab {
+            font-size: 0.7rem;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+
+        .terminal-box {
+            background: #040810;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 1.5rem;
+            min-height: 140px;
+            margin-bottom: 1.5rem;
+            font-family: var(--ff-body);
+            line-height: 1.6;
+        }
+
+        #origin-desc {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--border);
+            color: var(--cyan);
+            font-size: 0.9rem;
+            min-height: 3.2em;
+        }
+
+        .choices {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        button {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--ff-body);
+            font-weight: 500;
+            transition: all 0.2s;
+            text-align: left;
+        }
+
+        button:hover {
+            border-color: var(--accent);
+            background: rgba(75,142,248,0.07);
+            transform: translateX(5px);
+        }
+
+        button small {
+            display: none;
+        }
+
+        .progress-wrap {
+            display: none; 
+            margin-top: 2rem;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+        }
+
+        .progress-wrap.active {
+            display: block;
+        }
+
+        #progress-bar {
+            height: 100%;
+            background: var(--accent);
+            width: 0%;
+            transition: width 0.5s;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="game-card">
+    <div class="header">
+        <span class="label">// Semester Week <span id="week-num">1</span></span>
+        <h1 id="title">University Simulator</h1>
+    </div>
+
+    <div class="stats-container" id="stats-hud">
+        <div class="stat-box">
+            <span class="stat-lab">GPA</span>
+            <span id="gpa" class="stat-val">4.0</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-lab">Social</span>
+            <span id="social" class="stat-val">50</span>
+        </div>
+        <div class="stat-box">
+            <span class="stat-lab">Energy</span>
+            <span id="energy" class="stat-val">100</span>
+        </div>
+    </div>
+
+    <div id="setup-ui">
+        <div class="terminal-box">
+            <span class="label" style="color:var(--cyan)">Origin Sequence</span><br>
+            Before you arrived on campus, what was your high school experience like? Your history shapes your starting capacity.
+            <div id="origin-desc"><em>Hover over an origin to see its impact...</em></div>
+        </div>
+        <div class="choices">
+            <button onmouseover="showDesc(this)" onmouseout="hideDesc()" onclick="startGame('Private Academy')">
+                <strong>Private Academy</strong>
+                <small>Intensive prep gave you a GPA head-start, but you're already feeling the burnout. (GPA 4.0, Energy 70)</small>
+            </button>
+            <button onmouseover="showDesc(this)" onmouseout="hideDesc()" onclick="startGame('Public School')">
+                <strong>Public School</strong>
+                <small>A balanced upbringing. You're well-rounded and ready for the shift. (GPA 3.4, Social 50, Energy 100)</small>
+            </button>
+            <button onmouseover="showDesc(this)" onmouseout="hideDesc()" onclick="startGame('Homeschooled')">
+                <strong>Homeschooled</strong>
+                <small>You have incredible focus, but the social scene is a major adjustment. (GPA 3.8, Social 20, Energy 100)</small>
+            </button>
+            <button onmouseover="showDesc(this)" onmouseout="hideDesc()" onclick="startGame('Gap Year')">
+                <strong>Gap Year</strong>
+                <small>You've been working. Your social skills are peaked, but study habits are rusty. (GPA 2.8, Social 80, Energy 90)</small>
+            </button>
+        </div>
+    </div>
+
+    <div id="game-ui" class="hidden">
+        <div class="terminal-box" id="narrative"></div>
+        <div class="choices" id="choices"></div>
+    </div>
+
+    <div id="end-ui" class="hidden">
+        <div class="terminal-box" id="summary"></div>
+        <button onclick="location.reload()" style="text-align:center; width:100%; border-color:var(--accent);">Restart Semester</button>
+    </div>
+
+    <div class="progress-wrap" id="progress-hud">
+        <div id="progress-bar"></div>
+    </div>
+</div>
+
+<script>
+    const state = {
+        week: 1,
+        gpa: 4.0,
+        social: 50,
+        energy: 100,
+        maxWeeks: 12,
+        lastScenarioIndex: -1
+    };
+
+    function showDesc(btn) {
+        const desc = btn.querySelector('small').innerText;
+        document.getElementById('origin-desc').innerHTML = `<strong>Impact:</strong> ${desc}`;
+    }
+
+    function hideDesc() {
+        document.getElementById('origin-desc').innerHTML = "<em>Hover over an origin to see its impact...</em>";
+    }
+
+    const scenarioData = [
+        {
+            text: "Midterms are approaching. Your floor-mates are heading to a party, but you haven't opened your Calc textbook.",
+            choices: [
+                { text: "Hit the library (GPA +0.2, Social -10, Energy -20)", gpa: 0.2, social: -10, energy: -20 },
+                { text: "Go to the party (GPA -0.4, Social +20, Energy -30)", gpa: -0.4, social: 20, energy: -30 },
+                { text: "Sleep in (GPA -0.1, Social -5, Energy +30)", gpa: -0.1, social: -5, energy: 30 }
+            ]
+        },
+        {
+            text: "It's 2:00 AM. You're halfway through an essay due tomorrow. A friend pings you for a 'quick' gaming session.",
+            choices: [
+                { text: "Power through (GPA +0.2, Social -5, Energy -30)", gpa: 0.2, social: -5, energy: -30 },
+                { text: "Play for an hour (GPA -0.1, Social +15, Energy -20)", gpa: -0.1, social: 15, energy: -20 },
+                { text: "Sleep (GPA -0.3, Social -5, Energy +30)", gpa: -0.3, social: -5, energy: 30 }
+            ]
+        },
+        {
+            text: "The 'Involvement Fair' is happening. Dozens of clubs are asking for your commitment.",
+            choices: [
+                { text: "Join Honors Society (GPA +0.2, Social +5, Energy -15)", gpa: 0.2, social: 5, energy: -15 },
+                { text: "Join Intramural Sports (GPA -0.1, Social +25, Energy -20)", gpa: -0.1, social: 25, energy: -20 },
+                { text: "Stay home (GPA 0, Social -10, Energy +10)", gpa: 0, social: -10, energy: 10 }
+            ]
+        },
+        {
+            text: "A local cafe is hiring part-time baristas. The extra cash would be nice.",
+            choices: [
+                { text: "Take the job (GPA -0.3, Social +10, Energy -40)", gpa: -0.3, social: 10, energy: -40 },
+                { text: "Focus on school (GPA +0.1, Social -5, Energy +10)", gpa: 0.1, social: -5, energy: 10 }
+            ]
+        },
+        {
+            text: "Your roommate is playing loud music while you're trying to study for a quiz.",
+            choices: [
+                { text: "Confront them (GPA +0.1, Social -20, Energy -10)", gpa: 0.1, social: -20, energy: -10 },
+                { text: "Go to the library (GPA +0.1, Social 0, Energy -20)", gpa: 0.1, social: 0, energy: -20 },
+                { text: "Join the jam session (GPA -0.3, Social +20, Energy -10)", gpa: -0.3, social: 20, energy: -10 }
+            ]
+        },
+        {
+            text: "An old friend from high school visits unexpectedly for the weekend.",
+            choices: [
+                { text: "Show them around (GPA -0.3, Social +30, Energy -25)", gpa: -0.3, social: 30, energy: -25 },
+                { text: "Make them stay in the library (GPA +0.1, Social +5, Energy -15)", gpa: 0.1, social: 5, energy: -15 }
+            ]
+        },
+        {
+            text: "You found a 'study guide' online that looks suspiciously like the actual final exam.",
+            choices: [
+                { text: "Use it to study (GPA +0.4, Social 0, Energy -5)", gpa: 0.4, social: 0, energy: -5 },
+                { text: "Report it to the TA (GPA +0.1, Social -10, Energy -10)", gpa: 0.1, social: -10, energy: -10 },
+                { text: "Ignore it (GPA 0, Social 0, Energy 0)", gpa: 0, social: 0, energy: 0 }
+            ]
+        },
+        {
+            text: "The student union is hosting a 'Mental Health Day' with free coffee and therapy dogs.",
+            choices: [
+                { text: "Attend for the dogs (GPA 0, Social +10, Energy +25)", gpa: 0, social: 10, energy: 25 },
+                { text: "Keep studying (GPA +0.1, Social -5, Energy -15)", gpa: 0.1, social: -5, energy: -15 }
+            ]
+        },
+        {
+            text: "You've been invited to a networking dinner with alumni in your field.",
+            choices: [
+                { text: "Go and network (GPA +0.2, Social +15, Energy -25)", gpa: 0.2, social: 15, energy: -25 },
+                { text: "Skip to catch up on sleep (GPA 0, Social -5, Energy +20)", gpa: 0, social: -5, energy: 20 }
+            ]
+        },
+        {
+            text: "A heavy snowstorm has cancelled all classes for the day. 'Snow Day!'",
+            choices: [
+                { text: "Go sledding with friends (GPA -0.1, Social +25, Energy -15)", gpa: -0.1, social: 25, energy: -15 },
+                { text: "Catch up on readings (GPA +0.3, Social -10, Energy -10)", gpa: 0.3, social: -10, energy: -10 },
+                { text: "Binge-watch a show (GPA -0.2, Social 0, Energy +30)", gpa: -0.2, social: 0, energy: 30 }
+            ]
+        },
+        {
+            text: "Your computer crashes and you haven't backed up your 10-page term paper.",
+            choices: [
+                { text: "Pull an all-nighter to rewrite (GPA +0.1, Social -10, Energy -50)", gpa: 0.1, social: -10, energy: -50 },
+                { text: "Ask for an extension (GPA -0.1, Social 0, Energy -5)", gpa: -0.1, social: 0, energy: -5 }
+            ]
+        },
+        {
+            text: "Group project time. Your partners aren't responding to any of your messages.",
+            choices: [
+                { text: "Do the whole thing yourself (GPA +0.3, Social -15, Energy -40)", gpa: 0.3, social: -15, energy: -40 },
+                { text: "Wait for them (GPA -0.4, Social 0, Energy +10)", gpa: -0.4, social: 0, energy: 10 },
+                { text: "Email the professor (GPA 0, Social -20, Energy -5)", gpa: 0, social: -20, energy: -5 }
+            ]
+        }
+    ];
+
+    function clamp(val, min, max) {
+        return Math.min(Math.max(val, min), max);
+    }
+
+    function startGame(background) {
+        if (background === 'Private Academy') {
+            state.gpa = 4.0; state.social = 40; state.energy = 70;
+        } else if (background === 'Public School') {
+            state.gpa = 3.4; state.social = 50; state.energy = 100;
+        } else if (background === 'Homeschooled') {
+            state.gpa = 3.8; state.social = 20; state.energy = 100;
+        } else if (background === 'Gap Year') {
+            state.gpa = 2.8; state.social = 80; state.energy = 90;
+        }
+
+        document.getElementById('setup-ui').classList.add('hidden');
+        document.getElementById('game-ui').classList.remove('hidden');
+        document.getElementById('stats-hud').classList.add('active');
+        document.getElementById('progress-hud').classList.add('active');
+
+        updateUI();
+        nextTurn();
+    }
+
+    function updateUI() {
+        document.getElementById('week-num').innerText = Math.min(state.week, state.maxWeeks);
+        document.getElementById('gpa').innerText = state.gpa.toFixed(1);
+        document.getElementById('social').innerText = state.social;
+        document.getElementById('energy').innerText = state.energy;
+        document.getElementById('progress-bar').style.width = (Math.min(state.week, state.maxWeeks) / state.maxWeeks * 100) + '%';
+
+        if (state.energy <= 0) {
+            endGame("Burnout!", "You collapsed from exhaustion and had to take medical leave.");
+            return true;
+        }
+        if (state.social <= 0) {
+            endGame("Social Isolation!", "You've become a total hermit. You forgot how to interact with humans.");
+            return true;
+        }
+        if (state.week > state.maxWeeks) {
+            endGame("Semester Over!", "You made it to the end of the term!");
+            return true;
+        }
+        return false;
+    }
+
+    function nextTurn() {
+        let scenarioIndex;
+        do {
+            scenarioIndex = Math.floor(Math.random() * scenarioData.length);
+        } while (scenarioIndex === state.lastScenarioIndex);
+
+        state.lastScenarioIndex = scenarioIndex;
+        const scenario = scenarioData[scenarioIndex];
+        
+        document.getElementById('narrative').innerText = scenario.text;
+        const choicesEl = document.getElementById('choices');
+        choicesEl.innerHTML = '';
+
+        scenario.choices.forEach(c => {
+            const btn = document.createElement('button');
+            btn.innerText = c.text;
+            btn.onclick = () => {
+                state.gpa = clamp(state.gpa + c.gpa, 0, 4.0);
+                state.social = clamp(state.social + c.social, 0, 100);
+                state.energy = clamp(state.energy + c.energy, 0, 100);
+                state.week++;
+
+                const isGameOver = updateUI();
+                if (!isGameOver) nextTurn();
+            };
+            choicesEl.appendChild(btn);
+        });
+    }
+
+    function endGame(title, message) {
+        document.getElementById('game-ui').classList.add('hidden');
+        document.getElementById('end-ui').classList.remove('hidden');
+        document.getElementById('title').innerText = title;
+        
+        let rank = "Survivor";
+        if (state.gpa >= 4.0) rank = "Academic Weapon";
+        else if (state.gpa > 3.5) rank = "Scholar";
+        else if (state.social > 90) rank = "Party Animal";
+        else if (state.social > 70) rank = "Socialite";
+        else if (state.social < 15) rank = "The Ghost";
+
+        document.getElementById('summary').innerText = 
+            `${message}\n\nFinal Stats:\nGPA: ${state.gpa.toFixed(1)}\nSocial: ${state.social}\nEnergy: ${state.energy}\n\nTitle: ${rank}`;
+    }
+</script>
+
+</body>
+</html>

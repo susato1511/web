@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PHANTOM MAZE | Mobile Ready</title>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@800&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #05070a;
+            --wall: #161b22;
+            --path: #0d1117;
+            --accent: #4deeea;
+            --player: #f000ff;
+            --enemy: #ff3e3e;
+            --finish: #ffe700;
+            --font-display: 'Syne', sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body { 
+            background: var(--bg); 
+            color: white; 
+            margin: 0; 
+            overflow: hidden; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            font-family: var(--font-mono); 
+            touch-action: none;
+        }
+
+        #ui { position: absolute; top: 1rem; text-align: center; pointer-events: none; z-index: 10; width: 100%; }
+        h1 { font-family: var(--font-display); font-size: 1.8rem; margin: 0; text-transform: uppercase; letter-spacing: 2px; }
+        .stats { font-size: 0.7rem; color: var(--accent); margin-top: 0.2rem; }
+
+        canvas { 
+            box-shadow: 0 0 40px rgba(0,0,0,0.8); 
+            border: 1px solid #30363d; 
+            max-width: 95vw; 
+            max-height: 70vh;
+            image-rendering: pixelated; 
+        }
+
+        /* Mobile D-Pad */
+        .controls {
+            display: grid;
+            grid-template-columns: repeat(3, 60px);
+            grid-template-rows: repeat(2, 60px);
+            gap: 10px;
+            margin-top: 20px;
+            z-index: 20;
+        }
+
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(77, 238, 234, 0.3);
+            color: var(--accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+        .btn:active { background: var(--accent); color: var(--bg); }
+        .up { grid-column: 2; }
+        .left { grid-column: 1; grid-row: 2; }
+        .down { grid-column: 2; grid-row: 2; }
+        .right { grid-column: 3; grid-row: 2; }
+
+        .overlay { 
+            position: fixed; inset: 0; 
+            background: rgba(5,7,10,0.98); 
+            display: flex; flex-direction: column; 
+            align-items: center; justify-content: center; 
+            z-index: 100; padding: 2rem; text-align: center;
+        }
+        .hidden { display: none !important; }
+
+        .briefing {
+            max-width: 400px;
+            text-align: left;
+            border-left: 2px solid var(--accent);
+            padding-left: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        button.start-btn { 
+            background: transparent; border: 1px solid var(--accent); 
+            color: var(--accent); padding: 1rem 2rem; 
+            font-family: var(--font-mono); cursor: pointer; 
+            text-transform: uppercase; font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+
+    <div id="ui">
+        <h1>Phantom Maze</h1>
+        <div class="stats">SIGNAL: STABLE • ENEMY_REF: <span id="enemy-count">0</span></div>
+    </div>
+
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="controls">
+        <div class="btn up" onpointerdown="move(0, -1)">▲</div>
+        <div class="btn left" onpointerdown="move(-1, 0)">◀</div>
+        <div class="btn down" onpointerdown="move(0, 1)">▼</div>
+        <div class="btn right" onpointerdown="move(1, 0)">▶</div>
+    </div>
+
+    <div class="overlay" id="startOverlay">
+        <h2 style="font-family: var(--font-display); color: var(--accent);">INFILTRATION BRIEFING</h2>
+        <div class="briefing">
+            <p>1. <strong>OBJECTIVE:</strong> Reach the <span style="color:var(--finish)">Yellow Core</span>.</p>
+            <p>2. <strong>THREAT:</strong> Avoid <span style="color:var(--enemy)">Red Sentinels</span>. Collision results in neural disconnect.</p>
+            <p>3. <strong>STEALTH:</strong> Walls obscure vision. Use fog of war to your advantage.</p>
+            <p>4. <strong>INPUT:</strong> Use D-Pad or WASD/Arrows.</p>
+        </div>
+        <button class="start-btn" onclick="initGame()">Begin Operation</button>
+    </div>
+
+    <div class="overlay hidden" id="endOverlay">
+        <h2 id="msg" style="font-family: var(--font-display); font-size: 2.5rem;"></h2>
+        <p id="submsg" style="margin-bottom: 2rem;"></p>
+        <button class="start-btn" onclick="initGame()">Try Again</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        const COLS = 21, ROWS = 21;
+        let CELL_SIZE = 0;
+        let grid = [], player = { x: 1, y: 1 }, enemies = [];
+        let isPlaying = false, goal = { x: COLS-2, y: ROWS-2 };
+
+        class Enemy {
+            constructor(x, y) {
+                this.x = x; this.y = y;
+                this.dx = Math.random() > 0.5 ? 1 : -1;
+                this.dy = 0;
+                this.moveTimer = 0;
+            }
+            update() {
+                this.moveTimer++;
+                if (this.moveTimer < 20) return;
+                this.moveTimer = 0;
+                let nx = this.x + this.dx, ny = this.y + this.dy;
+                if (grid[ny] && grid[ny][nx] && !grid[ny][nx].isWall) {
+                    this.x = nx; this.y = ny;
+                } else {
+                    const dirs = [[0,1],[0,-1],[1,0],[-1,0]];
+                    const pick = dirs[Math.floor(Math.random() * dirs.length)];
+                    this.dx = pick[0]; this.dy = pick[1];
+                }
+            }
+        }
+
+        function initGrid() {
+            grid = Array.from({length: ROWS}, (_, y) => 
+                Array.from({length: COLS}, (_, x) => ({ x, y, isWall: true, visited: false, discovered: false }))
+            );
+        }
+
+        function generateMaze(x, y) {
+            grid[y][x].isWall = false; grid[y][x].visited = true;
+            const dirs = [[0,-2],[0,2],[-2,0],[2,0]].sort(() => Math.random() - 0.5);
+            for (let [dx, dy] of dirs) {
+                let nx = x + dx, ny = y + dy;
+                if (nx > 0 && nx < COLS-1 && ny > 0 && ny < ROWS-1 && !grid[ny][nx].visited) {
+                    grid[y + dy/2][x + dx/2].isWall = false;
+                    generateMaze(nx, ny);
+                }
+            }
+        }
+
+        function resizeCanvas() {
+            const size = Math.min(window.innerWidth * 0.9, window.innerHeight * 0.5);
+            CELL_SIZE = size / COLS;
+            canvas.width = COLS * CELL_SIZE;
+            canvas.height = ROWS * CELL_SIZE;
+        }
+
+        function initGame() {
+            document.querySelectorAll('.overlay').forEach(el => el.classList.add('hidden'));
+            resizeCanvas();
+            initGrid();
+            generateMaze(1, 1);
+            grid[goal.y][goal.x].isWall = false;
+            player = { x: 1, y: 1 };
+            enemies = [];
+            for(let i=0; i<5; i++) {
+                let ex, ey;
+                do { ex = Math.floor(Math.random()*COLS); ey = Math.floor(Math.random()*ROWS); }
+                while(grid[ey][ex].isWall || (ex < 4 && ey < 4));
+                enemies.push(new Enemy(ex, ey));
+            }
+            document.getElementById('enemy-count').innerText = enemies.length;
+            isPlaying = true;
+            updateFog();
+            requestAnimationFrame(loop);
+        }
+
+        function move(dx, dy) {
+            if(!isPlaying) return;
+            let nx = player.x + dx, ny = player.y + dy;
+            if (grid[ny] && grid[ny][nx] && !grid[ny][nx].isWall) {
+                player.x = nx; player.y = ny;
+                updateFog();
+                if (player.x === goal.x && player.y === goal.y) endGame(true);
+            }
+        }
+
+        function updateFog() {
+            for(let y=player.y-2; y<=player.y+2; y++) {
+                for(let x=player.x-2; x<=player.x+2; x++) {
+                    if(grid[y] && grid[y][x]) grid[y][x].discovered = true;
+                }
+            }
+        }
+
+        function loop() {
+            if(!isPlaying) return;
+            enemies.forEach(e => {
+                e.update();
+                if(e.x === player.x && e.y === player.y) endGame(false);
+            });
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        function draw() {
+            ctx.fillStyle = '#05070a';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            for (let y = 0; y < ROWS; y++) {
+                for (let x = 0; x < COLS; x++) {
+                    const cell = grid[y][x];
+                    if (!cell.discovered) continue;
+                    ctx.fillStyle = cell.isWall ? '#161b22' : '#0d1117';
+                    ctx.fillRect(x * CELL_SIZE, y * CELL_SIZE, CELL_SIZE, CELL_SIZE);
+                }
+            }
+            if(grid[goal.y][goal.x].discovered) {
+                ctx.fillStyle = '#ffe700'; ctx.fillRect(goal.x*CELL_SIZE+4, goal.y*CELL_SIZE+4, CELL_SIZE-8, CELL_SIZE-8);
+            }
+            enemies.forEach(e => {
+                if(!grid[e.y][e.x].discovered) return;
+                ctx.fillStyle = '#ff3e3e';
+                ctx.fillRect(e.x*CELL_SIZE+4, e.y*CELL_SIZE+4, CELL_SIZE-8, CELL_SIZE-8);
+            });
+            ctx.fillStyle = '#4deeea';
+            ctx.beginPath();
+            ctx.arc(player.x*CELL_SIZE+CELL_SIZE/2, player.y*CELL_SIZE+CELL_SIZE/2, CELL_SIZE/3, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        function endGame(won) {
+            isPlaying = false;
+            const el = document.getElementById('endOverlay');
+            el.classList.remove('hidden');
+            document.getElementById('msg').innerText = won ? "SUCCESS" : "FAILED";
+            document.getElementById('msg').style.color = won ? '#4deeea' : '#ff3e3e';
+            document.getElementById('submsg').innerText = won ? "System objective secured." : "Neural signature detected. Connection lost.";
+        }
+
+        window.addEventListener('keydown', e => {
+            if (e.key === 'ArrowUp' || e.key === 'w') move(0, -1);
+            if (e.key === 'ArrowDown' || e.key === 's') move(0, 1);
+            if (e.key === 'ArrowLeft' || e.key === 'a') move(-1, 0);
+            if (e.key === 'ArrowRight' || e.key === 'd') move(1, 0);
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+    </script>
+</body>
+</html>

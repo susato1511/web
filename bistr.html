@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BistroLogic Pro | Business Intelligence Sim</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #020617;
+            --card: #0f172a;
+            --border: #1e293b;
+            --accent: #38bdf8;
+            --revenue: #22c55e;
+            --waste: #ef4444;
+            --csat: #f59e0b;
+            --text: #f8fafc;
+            --muted: #64748b;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            display: grid;
+            grid-template-columns: 320px 1fr;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            background: var(--card);
+            border-right: 1px solid var(--border);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            overflow-y: auto;
+        }
+
+        .stat-box {
+            background: rgba(0,0,0,0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; font-weight: 700; }
+        .stat-value { display: block; font-size: 1.4rem; font-family: 'JetBrains Mono'; color: var(--accent); }
+
+        /* Main Dashboard */
+        .main-content {
+            padding: 2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .chart-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+        }
+
+        svg {
+            width: 100%;
+            height: 250px;
+            background: #000;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+
+        /* Table UI */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th { text-align: left; padding: 10px; border-bottom: 2px solid var(--border); color: var(--muted); }
+        td { padding: 10px; border-bottom: 1px solid var(--border); font-family: 'JetBrains Mono'; }
+
+        .btn {
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .btn-open { background: var(--revenue); color: #000; }
+        .btn-buy { background: var(--accent); color: #000; }
+        .btn-secondary { background: var(--border); color: var(--text); }
+        .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+        /* Overlays */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            flex-direction: column;
+        }
+
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+
+    <div id="game-over" class="overlay hidden">
+        <h1 id="fail-title" style="color:var(--waste); font-size: 3rem;">BANKRUPT</h1>
+        <p id="fail-msg" style="margin-bottom: 2rem;">Your cash reserves hit zero.</p>
+        <button class="btn btn-buy" style="width:200px" onclick="location.reload()">Restart Simulation</button>
+    </div>
+
+    <aside class="sidebar">
+        <h2 style="margin:0; font-size: 1.1rem; letter-spacing: 1px;">BISTRO<span style="color:var(--accent)">LOGIC</span></h2>
+        
+        <div class="stat-box">
+            <span class="stat-label">Available Capital</span>
+            <span class="stat-value" id="cash-val">$1,000</span>
+        </div>
+
+        <div class="stat-box" style="border-left: 4px solid var(--csat)">
+            <span class="stat-label">Customer Satisfaction</span>
+            <span class="stat-value" id="csat-val" style="color:var(--csat)">90%</span>
+        </div>
+
+        <div class="stat-box">
+            <span class="stat-label">Inventory (Units)</span>
+            <span class="stat-value" id="inv-val">100</span>
+            <div style="height:4px; background:#334155; width:100%; margin-top:8px;">
+                <div id="inv-fill" style="height:100%; background:var(--accent); width:50%;"></div>
+            </div>
+        </div>
+
+        <div class="stat-box">
+            <span class="stat-label">Current Unit Price</span>
+            <div style="display:flex; justify-content: space-between; align-items: center; margin-top: 5px;">
+                <button class="btn btn-secondary" style="width:40px" onclick="changePrice(-1)">-</button>
+                <span id="price-val" style="font-family: 'JetBrains Mono'; font-weight:bold;">$15</span>
+                <button class="btn btn-secondary" style="width:40px" onclick="changePrice(1)">+</button>
+            </div>
+        </div>
+
+        <button class="btn btn-open" id="run-btn" onclick="simulateDay()">Run Daily Cycle</button>
+        <button class="btn btn-buy" onclick="restock()">Restock (50u / $150)</button>
+        
+        <div id="log" style="font-size: 0.75rem; color: var(--muted); height: 100px; overflow-y:auto; border-top: 1px solid var(--border); padding-top: 10px;">
+            System online.
+        </div>
+    </aside>
+
+    <main class="main-content">
+        <div class="chart-container">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <h3 style="margin:0">Market Trends</h3>
+                <div style="display:flex; gap:15px; font-size:0.7rem; font-weight:bold; text-transform:uppercase;">
+                    <span style="color:var(--revenue)">● Revenue</span>
+                    <span style="color:var(--csat)">● Satisfaction</span>
+                    <span style="color:var(--waste)">● Waste</span>
+                </div>
+            </div>
+            <svg id="chart" viewBox="0 0 1000 250" preserveAspectRatio="none">
+                <polyline id="path-rev" fill="none" stroke="var(--revenue)" stroke-width="3" points="" />
+                <polyline id="path-csat" fill="none" stroke="var(--csat)" stroke-width="2" points="" />
+                <polyline id="path-waste" fill="none" stroke="var(--waste)" stroke-width="2" stroke-dasharray="4" points="" />
+            </svg>
+        </div>
+
+        <div class="chart-container">
+            <h3 style="margin:0 0 1rem 0">Daily Performance Ledger</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Day</th>
+                        <th>Price</th>
+                        <th>Revenue</th>
+                        <th>CSAT</th>
+                        <th>Waste</th>
+                        <th>Closing Cash</th>
+                    </tr>
+                </thead>
+                <tbody id="ledger"></tbody>
+            </table>
+        </div>
+    </main>
+
+<script>
+    const state = {
+        cash: 1000,
+        inventory: 100,
+        csat: 90,
+        price: 15,
+        day: 0,
+        history: [],
+        isGameOver: false
+    };
+
+    function changePrice(n) {
+        state.price = Math.max(1, state.price + n);
+        document.getElementById('price-val').innerText = `$${state.price}`;
+    }
+
+    function restock() {
+        if (state.cash >= 150) {
+            state.cash -= 150;
+            state.inventory += 50;
+            updateUI();
+            log("Restock: +50 units for $150.");
+        }
+    }
+
+    function simulateDay() {
+        if (state.isGameOver) return;
+        state.day++;
+
+        // --- THE ENGINE ---
+        // Demand formula: (Base + CSAT factor) - Price sensitivity
+        const demandModifier = (state.csat / 10); 
+        let demand = Math.floor((30 + demandModifier) - (state.price * 1.5) + (Math.random() * 10));
+        demand = Math.max(0, demand);
+
+        const sold = Math.min(state.inventory, demand);
+        const revenue = sold * state.price;
+        
+        // CSAT Logic: High prices hurt satisfaction; running out of stock kills it.
+        let csatChange = 0;
+        if (state.price > 25) csatChange -= 5;
+        else if (state.price < 12) csatChange += 2;
+        
+        if (demand > state.inventory) {
+            csatChange -= 10; // Stockout penalty
+            log("Stockout! Customers left angry.", "waste");
+        }
+
+        // Spoilage (Waste)
+        const waste = Math.floor((state.inventory - sold) * 0.15);
+        
+        // Apply State
+        state.inventory -= (sold + waste);
+        state.cash += revenue;
+        state.csat = Math.min(100, Math.max(0, state.csat + csatChange));
+
+        state.history.push({
+            day: state.day,
+            price: state.price,
+            rev: revenue,
+            csat: state.csat,
+            waste: waste,
+            cash: state.cash
+        });
+
+        checkConditions();
+        updateUI();
+        updateChart();
+    }
+
+    function checkConditions() {
+        let title = "";
+        let msg = "";
+
+        if (state.cash <= 0) {
+            title = "BANKRUPT";
+            msg = "Your cash reserves have been depleted.";
+            state.isGameOver = true;
+        } else if (state.csat <= 0) {
+            title = "BRAND COLLAPSED";
+            msg = "Customer satisfaction hit 0%. Nobody is coming back.";
+            state.isGameOver = true;
+        }
+
+        if (state.isGameOver) {
+            document.getElementById('game-over').classList.remove('hidden');
+            document.getElementById('fail-title').innerText = title;
+            document.getElementById('fail-msg').innerText = msg;
+        }
+    }
+
+    function log(msg) {
+        const l = document.getElementById('log');
+        l.innerHTML = `<div>Day ${state.day}: ${msg}</div>` + l.innerHTML;
+    }
+
+    function updateUI() {
+        document.getElementById('cash-val').innerText = `$${Math.floor(state.cash).toLocaleString()}`;
+        document.getElementById('csat-val').innerText = `${state.csat}%`;
+        document.getElementById('inv-val').innerText = state.inventory;
+        document.getElementById('inv-fill').style.width = `${Math.min(100, state.inventory / 2)}%`;
+
+        const latest = state.history[state.history.length - 1];
+        if (latest) {
+            const row = `<tr>
+                <td>#${latest.day}</td>
+                <td>$${latest.price}</td>
+                <td style="color:var(--revenue)">$${latest.rev}</td>
+                <td style="color:var(--csat)">${latest.csat}%</td>
+                <td style="color:var(--waste)">${latest.waste}u</td>
+                <td>$${Math.floor(latest.cash)}</td>
+            </tr>`;
+            document.getElementById('ledger').insertAdjacentHTML('afterbegin', row);
+        }
+    }
+
+    function updateChart() {
+        if (state.history.length < 1) return;
+        const maxDays = 15;
+        const subset = state.history.slice(-maxDays);
+        const w = 1000, h = 250;
+
+        const getX = (i) => (i / (maxDays - 1)) * w;
+        const getY = (val, max) => h - ((val / max) * h);
+
+        let pRev = "", pCsat = "", pWaste = "";
+        subset.forEach((d, i) => {
+            const x = getX(i);
+            pRev += `${x},${getY(d.rev, 1000)} `;
+            pCsat += `${x},${getY(d.csat, 100)} `;
+            pWaste += `${x},${getY(d.waste, 50)} `;
+        });
+
+        document.getElementById('path-rev').setAttribute('points', pRev);
+        document.getElementById('path-csat').setAttribute('points', pCsat);
+        document.getElementById('path-waste').setAttribute('points', pWaste);
+    }
+
+    updateUI();
+</script>
+</body>
+</html>
