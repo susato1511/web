@@ -6,166 +6,170 @@
     <title>Freshman Year | Semester Simulator</title>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --bg: #070b13;
-            --bg-2: #0b1220;
-            --border: #1c2b40;
-            --text: #dce8f8;
-            --muted: #64748b;
-            --accent: #4b8ef8;
-            --cyan: #22d3ee;
-            --radius: 12px;
-            --ff-display: 'Syne', sans-serif;
-            --ff-mono: 'JetBrains Mono', monospace;
-            --ff-body: 'DM Sans', sans-serif;
-        }
+    :root {
+        --bg: #070b13;
+        --bg-2: #0b1220;
+        --border: #1c2b40;
+        --text: #dce8f8;
+        --muted: #64748b;
+        --accent: #4b8ef8;
+        --cyan: #22d3ee;
+        --radius: 12px;
+        --ff-display: 'Syne', sans-serif;
+        --ff-mono: 'JetBrains Mono', monospace;
+        --ff-body: 'DM Sans', sans-serif;
+    }
 
-        body {
-            font-family: var(--ff-body);
-            background: var(--bg);
-            color: var(--text);
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            background-image:
-                linear-gradient(rgba(75,142,248,0.025) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(75,142,248,0.025) 1px, transparent 1px);
-            background-size: 44px 44px;
-        }
+    body {
+        font-family: var(--ff-body);
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Better for scrolling on mobile */
+        min-height: 100vh;
+        padding: 1rem; /* Padding for the body */
+        box-sizing: border-box;
+        background-image:
+            linear-gradient(rgba(75,142,248,0.025) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(75,142,248,0.025) 1px, transparent 1px);
+        background-size: 44px 44px;
+    }
 
-        #game-card {
-            background: var(--bg-2);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            width: 90%;
-            max-width: 600px;
-            padding: 2.5rem;
-            box-shadow: 0 4px 28px rgba(0,0,0,0.55);
-        }
+    #game-card {
+        background: var(--bg-2);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        width: 100%;
+        max-width: 600px;
+        padding: 1.5rem; /* Reduced for mobile */
+        box-shadow: 0 4px 28px rgba(0,0,0,0.55);
+        box-sizing: border-box;
+    }
 
-        .header {
-            text-align: center;
-            margin-bottom: 2rem;
-        }
+    /* Tablet/Desktop padding */
+    @media (min-width: 600px) {
+        #game-card { padding: 2.5rem; }
+        body { align-items: center; }
+    }
 
-        .label {
-            font-family: var(--ff-mono);
-            font-size: 0.72rem;
-            color: var(--accent);
-            text-transform: uppercase;
-            letter-spacing: 0.14em;
-        }
+    .header { text-align: center; margin-bottom: 1.5rem; }
 
-        h1 {
-            font-family: var(--ff-display);
-            font-size: 1.8rem;
-            margin: 0.5rem 0;
-        }
+    .label {
+        font-family: var(--ff-mono);
+        font-size: 0.65rem;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.14em;
+    }
 
-        .stats-container {
-            display: none; 
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 2rem;
-        }
+    h1 {
+        font-family: var(--ff-display);
+        font-size: 1.4rem; /* Scaled down for mobile */
+        margin: 0.5rem 0;
+    }
 
-        .stats-container.active {
-            display: grid;
-        }
+    @media (min-width: 600px) { h1 { font-size: 1.8rem; } }
 
-        .stat-box {
-            background: rgba(255,255,255,0.02);
-            border: 1px solid var(--border);
-            padding: 10px;
-            border-radius: 8px;
-            text-align: center;
-        }
+    .stats-container {
+        display: none; 
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-bottom: 1.5rem;
+    }
 
-        .stat-val {
-            display: block;
-            font-family: var(--ff-mono);
-            font-weight: bold;
-            color: var(--cyan);
-        }
+    .stats-container.active { display: grid; }
 
-        .stat-lab {
-            font-size: 0.7rem;
-            color: var(--muted);
-            text-transform: uppercase;
-        }
+    .stat-box {
+        background: rgba(255,255,255,0.02);
+        border: 1px solid var(--border);
+        padding: 8px 4px;
+        border-radius: 8px;
+        text-align: center;
+    }
 
-        .terminal-box {
-            background: #040810;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.5rem;
-            min-height: 140px;
-            margin-bottom: 1.5rem;
-            font-family: var(--ff-body);
-            line-height: 1.6;
-        }
+    .stat-val {
+        display: block;
+        font-family: var(--ff-mono);
+        font-size: 1rem;
+        font-weight: bold;
+        color: var(--cyan);
+    }
 
-        #origin-desc {
-            margin-top: 12px;
-            padding-top: 12px;
-            border-top: 1px dashed var(--border);
-            color: var(--cyan);
-            font-size: 0.9rem;
-            min-height: 3.2em;
-        }
+    .stat-lab {
+        font-size: 0.6rem;
+        color: var(--muted);
+        text-transform: uppercase;
+    }
 
-        .choices {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
+    .terminal-box {
+        background: #040810;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        min-height: 100px;
+        margin-bottom: 1.2rem;
+        font-family: var(--ff-body);
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
 
-        button {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text);
-            padding: 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-family: var(--ff-body);
-            font-weight: 500;
-            transition: all 0.2s;
-            text-align: left;
-        }
+    #origin-desc {
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px dashed var(--border);
+        color: var(--cyan);
+        font-size: 0.85rem;
+        min-height: 4em;
+    }
 
+    .choices { display: flex; flex-direction: column; gap: 8px; }
+
+    button {
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text);
+        padding: 14px; /* Larger tap target */
+        border-radius: 6px;
+        cursor: pointer;
+        font-family: var(--ff-body);
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s;
+        text-align: left;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    button:active { /* Feedback for mobile touch */
+        background: rgba(75,142,248,0.15);
+        transform: scale(0.98);
+    }
+
+    @media (hover: hover) {
         button:hover {
             border-color: var(--accent);
             background: rgba(75,142,248,0.07);
             transform: translateX(5px);
         }
+    }
 
-        button small {
-            display: none;
-        }
+    /* Important: Small text in buttons is hidden for UI cleanliness, 
+       but used for logic */
+    button small { display: none; }
 
-        .progress-wrap {
-            display: none; 
-            margin-top: 2rem;
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-        }
+    .progress-wrap {
+        display: none; 
+        margin-top: 1.5rem;
+        height: 4px;
+        background: var(--border);
+        border-radius: 2px;
+    }
 
-        .progress-wrap.active {
-            display: block;
-        }
-
-        #progress-bar {
-            height: 100%;
-            background: var(--accent);
-            width: 0%;
-            transition: width 0.5s;
-        }
-
-        .hidden { display: none; }
-    </style>
+    .progress-wrap.active { display: block; }
+    #progress-bar { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s; }
+    .hidden { display: none; }
+</style>
 </head>
 <body>
 
@@ -242,8 +246,10 @@
     };
 
     function showDesc(btn) {
-        const desc = btn.querySelector('small').innerText;
-        document.getElementById('origin-desc').innerHTML = `<strong>Impact:</strong> ${desc}`;
+	const desc = btn.querySelector('small').innerText;
+    const display = document.getElementById('origin-desc');
+    display.innerHTML = `<strong>Impact:</strong> ${desc}`;
+    display.style.color = "var(--accent)";
     }
 
     function hideDesc() {
@@ -366,6 +372,7 @@
 
         updateUI();
         nextTurn();
+		window.scrollTo(0, 0);
     }
 
     function updateUI() {
